@@ -6,6 +6,7 @@ English | [简体中文](README.zh-CN.md)
 [![iOS 17+, hinge on 27.1](https://img.shields.io/badge/iOS-17%2B%20%C2%B7%20hinge%20on%2027.1-000000?logo=apple&logoColor=white)](#requirements)
 [![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-brightgreen)](#installation)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/MIDJUG3Nine/HingeKit?style=flat&logo=github)](https://github.com/MIDJUG3Nine/HingeKit/stargazers)
 
 **Use the iPhone Duo hinge as input in SwiftUI.** Open the phone like a book, close it, or flick it half shut to turn a page, and get a clean event for each.
 
@@ -126,6 +127,16 @@ Ideas and pull requests are welcome in the issues.
 v0.1 is early. The thresholds were tuned against simulated input; real-device feedback is very welcome in the issues.
 
 HingeKit is an independent project and is not affiliated with Apple. iPhone is a trademark of Apple Inc.
+
+## Star History
+
+<a href="https://www.star-history.com/#MIDJUG3Nine/HingeKit&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=midjug3nine%2fhingekit&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=midjug3nine%2fhingekit&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=midjug3nine%2fhingekit&type=Date" />
+  </picture>
+</a>
 
 ## License
 

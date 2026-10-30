@@ -6,6 +6,7 @@
 [![iOS 17+, hinge on 27.1](https://img.shields.io/badge/iOS-17%2B%20%C2%B7%20hinge%20on%2027.1-000000?logo=apple&logoColor=white)](#环境要求)
 [![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-brightgreen)](#安装)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/MIDJUG3Nine/HingeKit?style=flat&logo=github)](https://github.com/MIDJUG3Nine/HingeKit/stargazers)
 
 **在 SwiftUI 里把 iPhone Duo 的铰链当作输入。** 像翻书一样打开手机、合上，或者快速半合再打开来翻一页，每个动作都会得到一个干净的事件。
 
@@ -126,6 +127,16 @@ HingeKit 专注于把铰链当作输入设备，体量很小，可以和上面�
 v0.1 还很早期。阈值目前是用模拟输入调出来的，非常欢迎用真机试过后在 Issues 里反馈。
 
 HingeKit 是独立项目，与 Apple 无关。iPhone 是 Apple Inc. 的商标。
+
+## Star 趋势
+
+<a href="https://www.star-history.com/#MIDJUG3Nine/HingeKit&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=midjug3nine%2fhingekit&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=midjug3nine%2fhingekit&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=midjug3nine%2fhingekit&type=Date" />
+  </picture>
+</a>
 
 ## 许可
 
