@@ -6,6 +6,10 @@
 <title>HingeKit Live Demo</title>
 <meta name="description" content="Fold a virtual iPhone Duo in your browser and watch HingeKit turn the hinge angle into opened, closed and page-turn events.">
 <style>
+@font-face { font-family: "Book Serif"; src: url(assets/fonts/IMFellEnglish-Roman.woff2) format("woff2"); unicode-range: U+0000-024F, U+2000-206F; font-display: swap; }
+@font-face { font-family: "Book Serif"; src: url(assets/fonts/NotoSerifSC-Medium.woff2) format("woff2"); unicode-range: U+3000-303F, U+4E00-9FFF, U+FF00-FFEF; font-display: swap; }
+@font-face { font-family: "Book Title"; src: url(assets/fonts/IMFellEnglishSC-Regular.woff2) format("woff2"); unicode-range: U+0000-024F, U+2000-206F; font-display: swap; }
+@font-face { font-family: "Book Title"; src: url(assets/fonts/NotoSerifSC-Bold.woff2) format("woff2"); unicode-range: U+3000-303F, U+4E00-9FFF, U+FF00-FFEF; font-display: swap; }
 :root {
   --bg: #f6f7f9;
   --surface: #ffffff;
@@ -16,8 +20,7 @@
   --accent-soft: rgba(10, 132, 255, 0.12);
   --rest: #8a94a3;
   --warn: #e8590c;
-  --cover: #0c2236;
-  --cover-ink: #e8eef5;
+  --gold-grad: linear-gradient(135deg, #7a5a24 0%, #e9cf86 22%, #a8823e 45%, #f4e0a0 70%, #806029 100%);
   --paper: #fbf8f1;
   --paper-ink: #2a2620;
   --frame: #1b1f24;
@@ -97,32 +100,46 @@ h1 span { color: var(--muted); font-weight: 500; }
   display: flex; align-items: center; justify-content: center;
   perspective: 1100px; overflow: hidden; touch-action: none; cursor: ew-resize; user-select: none;
 }
-@media (max-width: 480px) { .stage { --w: 132px; --h: 200px; } }
+@media (max-width: 480px) {
+  .stage { --w: 132px; --h: 200px; }
+  .inner .answer { font-size: 17px; }
+  .inner .prompt { font-size: 11px; }
+  .face { padding: 14px 10px; }
+}
 .device {
   position: relative; width: calc(var(--w) * 2); height: var(--h);
   transform-style: preserve-3d;
   transform: rotateX(16deg) translateX(var(--shift, 0px));
 }
 .half { position: absolute; top: 0; width: var(--w); height: var(--h); transform-style: preserve-3d; }
-.half.left { left: 0; }
-.half.right { left: var(--w); transform-origin: left center; transform: translateZ(1px) rotateY(var(--fold, 0deg)); }
+/* The iPhone Duo opens like a Western book: the hinge is on the left of the closed phone,
+   so the half with the outer display (the cover) swings open to the left. */
+.half.left { left: 0; transform-origin: right center; transform: translateZ(1px) rotateY(var(--fold, 0deg)); }
+.half.right { left: var(--w); }
 .face {
   position: absolute; inset: 0; border-radius: 18px; border: 6px solid var(--frame);
   backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden;
   display: flex; flex-direction: column; justify-content: center; padding: 18px 16px;
 }
-.left .face { border-radius: 18px 4px 4px 18px; border-right-width: 2px; transition: opacity 120ms; }
-.device.shut .left .face { opacity: 0; }
-.right .face.inner { border-radius: 4px 18px 18px 4px; border-left-width: 2px; }
+.left .face.inner { border-radius: 18px 4px 4px 18px; border-right-width: 2px; }
+.right .face { border-radius: 4px 18px 18px 4px; border-left-width: 2px; transition: opacity 120ms; }
+.device.shut .right .face { opacity: 0; }
 .face.back { transform: rotateY(180deg); border-radius: 18px; }
-.inner { background: var(--paper); color: var(--paper-ink); }
-.inner .prompt { font-size: 13px; color: var(--muted); text-align: center; }
-.inner .answer { font-family: "New York", "Iowan Old Style", Georgia, "Songti SC", serif; font-size: 22px; line-height: 1.3; text-align: center; }
-.inner .page-no { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--muted); }
-.cover { background: var(--cover); color: var(--cover-ink); align-items: center; text-align: center; gap: 10px; }
-.cover .title { font-family: "New York", Georgia, "Songti SC", serif; font-size: 24px; }
-.cover .hint { font-size: 12px; opacity: 0.7; }
-.cover .mark { width: 34px; height: 3px; background: #38bdf8; border-radius: 2px; }
+.inner { background: url(assets/paper-tall.jpg) center / cover, #eadcbc; color: #2b1d12; }
+/* Ink printed into the paper, as in the app: the paper shows through, the edges bleed a little,
+   and the ink is thinner where the fibres didn't take it. */
+.ink { mix-blend-mode: multiply; text-shadow: 0 0 0.6px rgba(43, 29, 18, 0.45); -webkit-mask-image: url(assets/inkgrain.png); mask-image: url(assets/inkgrain.png); -webkit-mask-size: 120px; mask-size: 120px; }
+.inner .prompt { font-size: 13px; line-height: 1.7; color: #6b5235; text-align: center; font-family: "Book Serif", Georgia, serif; }
+.inner .answer { font-family: "Book Serif", Georgia, serif; font-size: 23px; line-height: 1.4; letter-spacing: 0.04em; text-align: center; }
+.inner .page-no { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 12px; color: #6b5235; font-family: "Book Serif", Georgia, serif; }
+.cover { background: url(assets/leather.jpg) center / cover, #141210; align-items: center; text-align: center; gap: 12px; }
+.cover::before { content: ""; position: absolute; inset: 8px; border: 1.5px solid transparent; border-image: var(--gold-grad) 1; }
+.cover::after { content: ""; position: absolute; inset: 13px; border: 0.75px solid transparent; border-image: var(--gold-grad) 1; }
+/* Gold foil stamped into the leather: worn in the grain, dark along the top of the impression. */
+.foil { -webkit-mask-image: url(assets/foilwear.png); mask-image: url(assets/foilwear.png); -webkit-mask-size: 120px; mask-size: 120px; filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.9)) drop-shadow(0 1px 0 rgba(255, 240, 200, 0.1)); }
+.cover .title { font-family: "Book Title", Georgia, serif; font-size: 21px; letter-spacing: 0.14em; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cover .hint { font-family: "Book Serif", Georgia, serif; font-size: 12px; letter-spacing: 0.1em; color: #e2c47a; opacity: 0.6; }
+.cover .mark { width: 64px; height: 64px; background: url(assets/emblem.png) center / contain no-repeat; }
 .answer.turning { animation: turn 360ms ease; }
 @keyframes turn { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
 
@@ -192,17 +209,17 @@ footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; 
       <div class="stage" id="stage" aria-hidden="true">
         <div class="device" id="device">
           <div class="half left">
-            <div class="face inner"><div class="prompt" data-i18n="prompt">Think of a question.<br>Open the book for your answer.</div></div>
+            <div class="face inner"><div class="prompt ink" data-i18n="prompt">Think of a question.<br>Then open the book.</div></div>
+            <div class="face back cover">
+              <div class="title foil" data-i18n="bookTitle">Answer Book</div>
+              <div class="mark foil"></div>
+              <div class="hint foil" data-i18n="coverHint">Open me</div>
+            </div>
           </div>
           <div class="half right">
             <div class="face inner">
-              <div class="answer" id="answer"></div>
-              <div class="page-no" id="pageNo"></div>
-            </div>
-            <div class="face back cover">
-              <div class="title" data-i18n="bookTitle">Answer Book</div>
-              <div class="mark"></div>
-              <div class="hint" data-i18n="coverHint">Open me</div>
+              <div class="answer ink" id="answer"></div>
+              <div class="page-no ink" id="pageNo"></div>
             </div>
           </div>
         </div>
@@ -316,19 +333,20 @@ class FoldGestureRecognizer {
 
 // ---- Demo app ----
 const ANSWERS = [
-  ["Start now.", "现在就开始"], ["Sleep on it first.", "先睡一觉再决定"], ["You already know the answer.", "答案你心里早就有了"],
-  ["It's worth a try.", "值得一试"], ["Don't force it.", "别勉强自己"], ["Look at it from another angle.", "换个角度看看"],
-  ["It will go better than you think.", "会比你想的顺利"], ["Go for it.", "放手去做"], ["Not today. Try tomorrow.", "今天不是好日子，明天再说"],
-  ["Follow your gut.", "跟着直觉走"], ["Keep it simple.", "简单一点"], ["Slow down. It's faster that way.", "慢慢来，比较快"],
-  ["Write it down.", "把它写下来"], ["Go for a walk.", "去外面走走"], ["Be honest.", "坦诚一点"], ["Eat first.", "先吃饭"],
-  ["Trust the process.", "相信过程"], ["Ask a different question.", "换一个问题问"], ["Try a small step.", "小步试一下"],
-  ["Someone is waiting to hear from you.", "有人在等你的消息"]
+  // English, Chinese, and the page the answer is on in Answer Book.
+  ["Start now.", "现在就开始", 1], ["Sleep on it first.", "先睡一觉再决定", 3], ["You already know the answer.", "答案你心里早就有了", 5],
+  ["It's worth a try.", "值得一试", 6], ["Don't force it.", "别勉强自己", 7], ["Look at it from another angle.", "换个角度看看", 9],
+  ["It will go better than you think.", "会比你想的顺利", 10], ["Go for it.", "放手去做", 13], ["Not today. Try tomorrow.", "今天不是好日子，明天再说", 14],
+  ["Follow your gut.", "跟着直觉走", 15], ["Keep it simple.", "简单一点", 24], ["Slow down. It's faster that way.", "慢慢来，比较快", 25],
+  ["Write it down.", "把它写下来", 42], ["Go for a walk.", "去外面走走", 34], ["Be honest.", "坦诚一点", 39],
+  ["Eat first.", "先吃饭", 49], ["Trust the process.", "相信过程", 54], ["Ask a different question.", "换一个问题问", 51],
+  ["Try a small step.", "小步试一下", 44], ["Someone is waiting to hear from you.", "有人在等你的消息", 48]
 ];
 
 const STRINGS = {
   zh: {
     demo: "在线演示", lede: "折一折虚拟的 iPhone Duo。HingeKit 会把铰链角度变成 <code>opened</code>（打开）、<code>closed</code>（合上）和 <code>pageTurn</code>（翻页）事件。这个页面跑的是和 Swift 包相同的算法，只是换成了 JavaScript。",
-    device: "设备", prompt: "心里想一个问题，<br>翻开书看答案。", bookTitle: "答案书", coverHint: "翻开我",
+    device: "设备", prompt: "想一个问题吧<br>想好了，再打开这本书", bookTitle: "答案之书", coverHint: "翻开我",
     hinge: "铰链", close: "合上", book: "书本 (120°)", flick: "轻折一下", flat: "摊平",
     tip: "左右拖动手机，或者拖滑块。在一秒内往回折至少 25° 再打开，就会翻一页；慢慢折不算。",
     whatSees: "HingeKit 看到的", posture: "姿态", rest: "静止角度", lgAngle: "角度", lgRest: "静止角度", lgDepth: "翻页深度（−25°）",
@@ -370,7 +388,7 @@ function draw() {
     }
     i = bag.pop();
   } while (page && i === page.index && ANSWERS.length > 1);
-  page = { index: i, number: i * 3 + 7 };
+  page = { index: i, number: ANSWERS[i][2] };
 }
 
 function renderPage(animate) {
@@ -386,9 +404,9 @@ function setAngle(value, fromSlider) {
   if (!fromSlider) slider.value = angle;
   $("angleOut").textContent = angle + "°";
   const w = device.offsetWidth / 2;
-  device.style.setProperty("--fold", `${-(180 - angle)}deg`);
+  device.style.setProperty("--fold", `${180 - angle}deg`);
   device.classList.toggle("shut", angle < 3);
-  device.style.setProperty("--shift", `${((180 - angle) / 180) * w / 2}px`);
+  device.style.setProperty("--shift", `${-((180 - angle) / 180) * w / 2}px`);
   feed();
 }
 
@@ -439,13 +457,13 @@ $("btnFlick").onclick = () => {
 function cancelFlick() { if (flickTimer) { clearInterval(flickTimer); flickTimer = null; } }
 $("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; applyLang(); };
 
-// Drag the phone: right opens, left closes.
+// Drag the phone: left opens (the cover swings that way), right closes.
 let drag = null;
 stage.addEventListener("pointerdown", e => { cancelFlick(); drag = { x: e.clientX, start: angle }; stage.setPointerCapture(e.pointerId); });
 stage.addEventListener("pointermove", e => {
   if (!drag) return;
   const span = device.offsetWidth / 2;
-  setAngle(drag.start + (e.clientX - drag.x) / span * 180);
+  setAngle(drag.start - (e.clientX - drag.x) / span * 180);
 });
 const endDrag = () => { drag = null; };
 stage.addEventListener("pointerup", endDrag);
