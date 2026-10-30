@@ -2,10 +2,17 @@
 
 [English](README.md) | 简体中文
 
-[![Swift 6.4](https://img.shields.io/badge/Swift-6.4-F05138?logo=swift&logoColor=white)](https://swift.org)
-[![iOS 17+, hinge on 27.1](https://img.shields.io/badge/iOS-17%2B%20%C2%B7%20hinge%20on%2027.1-000000?logo=apple&logoColor=white)](#环境要求)
-[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-brightgreen)](#安装)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+<p align="center">
+  <a href="https://github.com/MIDJUG3Nine/HingeKit/actions/workflows/ci.yml"><img src="https://github.com/MIDJUG3Nine/HingeKit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+  <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.0%2B-F05138?logo=swift&logoColor=white" alt="Swift 6.0+"></a>
+  <a href="#环境要求"><img src="https://img.shields.io/badge/platforms-iOS%2017%2B%20%C2%B7%20macOS%2014%2B-000000?logo=apple&logoColor=white" alt="Platforms: iOS 17+ · macOS 14+"></a>
+  <a href="https://github.com/MIDJUG3Nine/HingeKit/stargazers"><img src="https://img.shields.io/github/stars/MIDJUG3Nine/HingeKit?style=flat" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
+  <a href="https://midjug3nine.github.io/HingeKit/">在线演示</a> · <a href="docs/how-it-works.zh-CN.md">原理</a> · <a href="skills/hingekit/SKILL.md">Agent skill</a>
+</p>
 
 **在 SwiftUI 里把 iPhone Duo 的铰链当作输入。** 像翻书一样打开手机、合上，或者快速半合再打开来翻一页，每个动作都会得到一个干净的事件。
 
@@ -99,6 +106,10 @@ let events = recognizer.process(HingeSample(status: .partiallyOpen, angle: 120, 
 ## 翻页是怎么判断的
 
 设备打开时，HingeKit 会持续跟踪一个「静止角度」。如果角度比它低了至少 25°，并且在一秒内回到距它 10° 以内，就算一次翻页。慢慢地折、轻微晃动、压下去没有回来，都会被忽略。`Tests/HingeKitTests` 里的测试覆盖了每一种情况。
+
+## Agent skill
+
+[`skills/hingekit`](skills/hingekit/SKILL.md) 告诉编程助手怎么用 HingeKit：安装、各个 API、模拟面板和常见错误。把 `skills/hingekit` 文件夹复制到你项目的 `.claude/skills/` 文件夹（Claude Code），或者你所用编程助手的 skills 文件夹里，助手在做铰链相关功能时就会用上它。
 
 ## 示例 App
 
