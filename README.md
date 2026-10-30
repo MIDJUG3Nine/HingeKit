@@ -1,5 +1,12 @@
 # HingeKit
 
+English | [简体中文](README.zh-CN.md)
+
+[![Swift 6.4](https://img.shields.io/badge/Swift-6.4-F05138?logo=swift&logoColor=white)](https://swift.org)
+[![iOS 17+, hinge on 27.1](https://img.shields.io/badge/iOS-17%2B%20%C2%B7%20hinge%20on%2027.1-000000?logo=apple&logoColor=white)](#requirements)
+[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-brightgreen)](#installation)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 **Use the iPhone Duo hinge as input in SwiftUI.** Open the phone like a book, close it, or flick it half shut to turn a page, and get a clean event for each.
 
 ```swift
@@ -16,7 +23,13 @@ BookView()
     }
 ```
 
-iOS 27.1 gives you the raw hinge (`onHingeChange`, with a status and an angle). HingeKit turns that stream into things an app can act on, and lets you build all of it without owning a $1,999 phone.
+<!-- demo gif -->
+
+## Why HingeKit
+
+iOS 27.1 gives you the raw hinge: `onHingeChange` reports a status and an angle as the phone folds. That is enough to draw a protractor, but not to tell whether someone just opened the book, closed it, or flicked it half shut to turn a page. Each app would have to write its own thresholds, smoothing and timing.
+
+HingeKit does that part once. It turns the raw stream into gestures (`opened`, `closed`, `pageTurn`) and postures (`closed`, `halfOpen`, `flat`, `noHinge`) that an app can switch on, and its hinge simulator lets you build and test all of it in Xcode Previews or any simulator, without owning a $1,999 phone.
 
 ## Features
 
@@ -98,6 +111,15 @@ While the device is open, HingeKit tracks a resting angle. A page turn is a dip 
 - [iphone-duo-simulator](https://github.com/acc-ai-tech/iphone-duo-simulator): previews iPhone Duo screen sizes and postures inside the iPad simulator.
 
 HingeKit focuses on the hinge as an input device and stays small enough to combine with any of them.
+
+## Roadmap
+
+- UIKit support, built on `UIHingeInteraction`.
+- A continuous `foldProgress` value (0 closed, 1 flat) for driving animations from the angle.
+- More gestures: hold half-open, double flick.
+- DocC documentation.
+
+Ideas and pull requests are welcome in the issues.
 
 ## Status
 
