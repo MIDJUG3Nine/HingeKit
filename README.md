@@ -2,10 +2,17 @@
 
 English | [简体中文](README.zh-CN.md)
 
-[![Swift 6.4](https://img.shields.io/badge/Swift-6.4-F05138?logo=swift&logoColor=white)](https://swift.org)
-[![iOS 17+, hinge on 27.1](https://img.shields.io/badge/iOS-17%2B%20%C2%B7%20hinge%20on%2027.1-000000?logo=apple&logoColor=white)](#requirements)
-[![Swift Package Manager](https://img.shields.io/badge/Swift_Package_Manager-compatible-brightgreen)](#installation)
-[![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+<p align="center">
+  <a href="https://github.com/MIDJUG3Nine/HingeKit/actions/workflows/ci.yml"><img src="https://github.com/MIDJUG3Nine/HingeKit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
+  <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.0%2B-F05138?logo=swift&logoColor=white" alt="Swift 6.0+"></a>
+  <a href="#requirements"><img src="https://img.shields.io/badge/platforms-iOS%2017%2B%20%C2%B7%20macOS%2014%2B-000000?logo=apple&logoColor=white" alt="Platforms: iOS 17+ · macOS 14+"></a>
+  <a href="https://github.com/MIDJUG3Nine/HingeKit/stargazers"><img src="https://img.shields.io/github/stars/MIDJUG3Nine/HingeKit?style=flat" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
+  <a href="https://midjug3nine.github.io/HingeKit/">Live demo</a> · <a href="docs/how-it-works.md">How it works</a> · <a href="skills/hingekit/SKILL.md">Agent skill</a>
+</p>
 
 **Use the iPhone Duo hinge as input in SwiftUI.** Open the phone like a book, close it, or flick it half shut to turn a page, and get a clean event for each.
 
@@ -99,6 +106,10 @@ Tune the page-turn gesture through `FoldGestureRecognizer.Configuration` (depth 
 ## How the page turn works
 
 While the device is open, HingeKit tracks a resting angle. A page turn is a dip of at least 25° below it that comes back within 10° in under a second. Slow folds, small wobbles and dips that never come back are ignored. The tests in `Tests/HingeKitTests` cover each case.
+
+## Agent skill
+
+[`skills/hingekit`](skills/hingekit/SKILL.md) teaches a coding agent how to use HingeKit: installing it, the APIs, the simulator panel and common mistakes. Copy the `skills/hingekit` folder into your project's `.claude/skills/` folder (Claude Code) or your coding agent's skills folder, and the agent will pick it up when you work on hinge features.
 
 ## Example app
 

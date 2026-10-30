@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HingeKit Live Demo</title>
+<meta name="description" content="Fold a virtual iPhone Duo in your browser and watch HingeKit turn the hinge angle into opened, closed and page-turn events.">
+<style>
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #12161c;
+  --muted: #5d6673;
+  --line: #dde1e7;
+  --accent: #0a84ff;
+  --accent-soft: rgba(10, 132, 255, 0.12);
+  --rest: #8a94a3;
+  --warn: #e8590c;
+  --cover: #0c2236;
+  --cover-ink: #e8eef5;
+  --paper: #fbf8f1;
+  --paper-ink: #2a2620;
+  --frame: #1b1f24;
+  --code-bg: #f0f2f5;
+  --flash: rgba(10, 132, 255, 0.22);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --ink: #e6edf3;
+    --muted: #9aa5b1;
+    --line: #2a313b;
+    --accent: #4aa8ff;
+    --accent-soft: rgba(74, 168, 255, 0.16);
+    --rest: #6e7a89;
+    --warn: #ff8a3d;
+    --paper: #1f1d19;
+    --paper-ink: #ece6da;
+    --frame: #050608;
+    --code-bg: #11161d;
+    --flash: rgba(74, 168, 255, 0.28);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --ink: #e6edf3;
+  --muted: #9aa5b1;
+  --line: #2a313b;
+  --accent: #4aa8ff;
+  --accent-soft: rgba(74, 168, 255, 0.16);
+  --rest: #6e7a89;
+  --warn: #ff8a3d;
+  --paper: #1f1d19;
+  --paper-ink: #ece6da;
+  --frame: #050608;
+  --code-bg: #11161d;
+  --flash: rgba(74, 168, 255, 0.28);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 32px 16px 48px; }
+
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+h1 { margin: 0; font-size: 28px; letter-spacing: -0.01em; }
+h1 span { color: var(--muted); font-weight: 500; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 620px; }
+.top-links { display: flex; gap: 8px; align-items: center; }
+.pill {
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; text-decoration: none;
+}
+.pill:hover { border-color: var(--accent); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+
+.card { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+.card h2 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+
+/* The phone */
+.stage {
+  --w: 170px; --h: 250px;
+  height: calc(var(--h) + 70px);
+  display: flex; align-items: center; justify-content: center;
+  perspective: 1100px; overflow: hidden; touch-action: none; cursor: ew-resize; user-select: none;
+}
+@media (max-width: 480px) { .stage { --w: 132px; --h: 200px; } }
+.device {
+  position: relative; width: calc(var(--w) * 2); height: var(--h);
+  transform-style: preserve-3d;
+  transform: rotateX(16deg) translateX(var(--shift, 0px));
+}
+.half { position: absolute; top: 0; width: var(--w); height: var(--h); transform-style: preserve-3d; }
+.half.left { left: 0; }
+.half.right { left: var(--w); transform-origin: left center; transform: translateZ(1px) rotateY(var(--fold, 0deg)); }
+.face {
+  position: absolute; inset: 0; border-radius: 18px; border: 6px solid var(--frame);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: center; padding: 18px 16px;
+}
+.left .face { border-radius: 18px 4px 4px 18px; border-right-width: 2px; transition: opacity 120ms; }
+.device.shut .left .face { opacity: 0; }
+.right .face.inner { border-radius: 4px 18px 18px 4px; border-left-width: 2px; }
+.face.back { transform: rotateY(180deg); border-radius: 18px; }
+.inner { background: var(--paper); color: var(--paper-ink); }
+.inner .prompt { font-size: 13px; color: var(--muted); text-align: center; }
+.inner .answer { font-family: "New York", "Iowan Old Style", Georgia, "Songti SC", serif; font-size: 22px; line-height: 1.3; text-align: center; }
+.inner .page-no { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 11px; color: var(--muted); }
+.cover { background: var(--cover); color: var(--cover-ink); align-items: center; text-align: center; gap: 10px; }
+.cover .title { font-family: "New York", Georgia, "Songti SC", serif; font-size: 24px; }
+.cover .hint { font-size: 12px; opacity: 0.7; }
+.cover .mark { width: 34px; height: 3px; background: #38bdf8; border-radius: 2px; }
+.answer.turning { animation: turn 360ms ease; }
+@keyframes turn { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+
+/* Controls */
+.controls { display: grid; gap: 14px; margin-top: 4px; }
+.slider-row { display: flex; align-items: center; gap: 12px; }
+.slider-row label { font-size: 14px; color: var(--muted); white-space: nowrap; }
+input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+.angle { font-variant-numeric: tabular-nums; font-weight: 600; width: 52px; text-align: right; }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn {
+  flex: 1 1 auto; border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  border-radius: 10px; padding: 9px 12px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tip { font-size: 13px; color: var(--muted); margin: 0; }
+
+/* Readouts */
+.status { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip { border-radius: 999px; padding: 4px 10px; font-size: 13px; background: var(--bg); border: 1px solid var(--line); }
+.chip b { font-weight: 600; }
+.chip.posture b { color: var(--accent); }
+canvas { width: 100%; height: 150px; display: block; border-radius: 10px; background: var(--bg); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); margin: 8px 0 16px; }
+.legend i { display: inline-block; width: 16px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 6px; }
+
+pre {
+  margin: 0; background: var(--code-bg); border-radius: 10px; padding: 12px 14px; overflow-x: auto;
+  font: 13px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+pre .ln { display: block; border-radius: 4px; padding: 0 4px; margin: 0 -4px; transition: background 600ms ease; }
+pre .ln.hit { background: var(--flash); transition: none; }
+.kw { color: #c2185b; } :root[data-theme="dark"] .kw { color: #ff7ab2; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .kw { color: #ff7ab2; } }
+
+.log { list-style: none; margin: 14px 0 0; padding: 0; font: 13px/1.5 ui-monospace, "SF Mono", Menlo, monospace; min-height: 120px; }
+.log li { padding: 3px 0; border-bottom: 1px dashed var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.log li span:last-child { color: var(--muted); }
+.log li.pageTurn span:first-child { color: var(--accent); font-weight: 600; }
+
+footer { margin-top: 28px; font-size: 13px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 16px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .answer.turning { animation: none; }
+  pre .ln { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>HingeKit <span data-i18n="demo">live demo</span></h1>
+      <p class="lede" data-i18n="lede">Fold a virtual iPhone Duo. HingeKit turns the hinge angle into <code>opened</code>, <code>closed</code> and <code>pageTurn</code> events. This page runs the same algorithm as the Swift package, ported to JavaScript.</p>
+    </div>
+    <div class="top-links">
+      <button class="pill" id="lang" type="button">中文</button>
+      <a class="pill" href="https://github.com/MIDJUG3Nine/HingeKit">GitHub</a>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="h-device">
+      <h2 id="h-device" data-i18n="device">The device</h2>
+      <div class="stage" id="stage" aria-hidden="true">
+        <div class="device" id="device">
+          <div class="half left">
+            <div class="face inner"><div class="prompt" data-i18n="prompt">Think of a question.<br>Open the book for your answer.</div></div>
+          </div>
+          <div class="half right">
+            <div class="face inner">
+              <div class="answer" id="answer"></div>
+              <div class="page-no" id="pageNo"></div>
+            </div>
+            <div class="face back cover">
+              <div class="title" data-i18n="bookTitle">Answer Book</div>
+              <div class="mark"></div>
+              <div class="hint" data-i18n="coverHint">Open me</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="slider-row">
+          <label for="hinge" data-i18n="hinge">Hinge</label>
+          <input id="hinge" type="range" min="0" max="180" step="1" value="0">
+          <span class="angle" id="angleOut">0°</span>
+        </div>
+        <div class="buttons">
+          <button class="btn" id="btnClose" type="button" data-i18n="close">Close</button>
+          <button class="btn" id="btnBook" type="button" data-i18n="book">Book (120°)</button>
+          <button class="btn primary" id="btnFlick" type="button" data-i18n="flick">Flick</button>
+          <button class="btn" id="btnFlat" type="button" data-i18n="flat">Flat</button>
+        </div>
+        <p class="tip" data-i18n="tip">Drag the phone sideways or use the slider. A quick partial fold and back, under a second and at least 25° deep, turns the page. Slow folds don't.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-events">
+      <h2 id="h-events" data-i18n="whatSees">What HingeKit sees</h2>
+      <div class="status" aria-live="polite">
+        <span class="chip posture"><span data-i18n="posture">posture</span> <b id="postureOut">noHinge</b></span>
+        <span class="chip"><span data-i18n="rest">resting angle</span> <b id="restOut">–</b></span>
+      </div>
+      <canvas id="chart" aria-label="Hinge angle over the last five seconds"></canvas>
+      <div class="legend">
+        <span><i style="border-color: var(--accent)"></i><span data-i18n="lgAngle">angle</span></span>
+        <span><i style="border-color: var(--rest); border-top-style: dashed"></i><span data-i18n="lgRest">resting angle</span></span>
+        <span><i style="border-color: var(--warn); border-top-style: dotted"></i><span data-i18n="lgDepth">page-turn depth (−25°)</span></span>
+      </div>
+<pre aria-label="Swift code"><span class="ln">BookView()</span><span class="ln">    .onFoldEvent { event <span class="kw">in</span></span><span class="ln">        <span class="kw">switch</span> event {</span><span class="ln" data-ev="opened">        <span class="kw">case</span> .opened:   showRandomPage()</span><span class="ln" data-ev="pageTurn">        <span class="kw">case</span> .pageTurn: showNextPage()</span><span class="ln" data-ev="closed">        <span class="kw">case</span> .closed:   showCover()</span><span class="ln" data-ev="postureChanged">        <span class="kw">case</span> .postureChanged: <span class="kw">break</span></span><span class="ln">        }</span><span class="ln">    }</span></pre>
+      <ul class="log" id="log" aria-live="polite" aria-label="Events"></ul>
+    </section>
+  </div>
+
+  <footer>
+    <span>HingeKit · MIT</span>
+    <a href="https://github.com/MIDJUG3Nine/HingeKit" data-i18n="source">Source on GitHub</a>
+    <a href="https://github.com/MIDJUG3Nine/HingeKit/blob/main/docs/how-it-works.md" data-i18n="how">How the page turn works</a>
+    <span data-i18n="tm">Not affiliated with Apple. iPhone is a trademark of Apple Inc.</span>
+  </footer>
+</div>
+
+<script>
+// ---- Port of Sources/HingeKit (PostureClassifier + FoldGestureRecognizer). Keep in sync. ----
+const isOpen = p => p === "halfOpen" || p === "flat";
+
+function makeSample(angle, timestamp) {
+  const a = Math.min(Math.max(angle, 0), 180);
+  const status = a <= 0 ? "closed" : (a >= 180 ? "fullyOpen" : "partiallyOpen");
+  return { status, angle: a, timestamp };
+}
+
+class PostureClassifier {
+  constructor(closedBelow = 8, flatAbove = 165, hysteresis = 10) {
+    Object.assign(this, { closedBelow, flatAbove, hysteresis, posture: "noHinge" });
+  }
+  update(s) { this.posture = this.classify(s, this.posture); return this.posture; }
+  classify(s, previous) {
+    if (s.status === "closed") return "closed";
+    const angle = s.angle ?? ({ partiallyOpen: 90, fullyOpen: 180 })[s.status];
+    if (previous === "closed" && angle <= this.closedBelow + this.hysteresis) return "closed";
+    if (previous === "flat" && angle >= this.flatAbove - this.hysteresis) return "flat";
+    if (angle <= this.closedBelow) return "closed";
+    if (angle >= this.flatAbove) return "flat";
+    return "halfOpen";
+  }
+}
+
+class FoldGestureRecognizer {
+  constructor() {
+    this.config = { pageTurnDepth: 25, dipStartThreshold: 8, returnTolerance: 10, pageTurnWindow: 1.0, restFollowRate: 0.2 };
+    this.classifier = new PostureClassifier();
+    this.restAngle = null;
+    this.dip = null;
+  }
+  get posture() { return this.classifier.posture; }
+  process(s) {
+    const previous = this.classifier.posture;
+    const current = this.classifier.update(s);
+    const events = [];
+    if (current !== previous) {
+      events.push({ type: "postureChanged", from: previous, to: current });
+      if (previous === "closed" && isOpen(current)) events.push({ type: "opened" });
+      if (isOpen(previous) && current === "closed") events.push({ type: "closed" });
+    }
+    if (!isOpen(current) || s.angle == null) { this.restAngle = null; this.dip = null; return events; }
+    if (current !== previous && !isOpen(previous)) { this.restAngle = s.angle; this.dip = null; return events; }
+    if (this.trackPageTurn(s.angle, s.timestamp)) events.push({ type: "pageTurn" });
+    return events;
+  }
+  trackPageTurn(angle, time) {
+    const c = this.config;
+    const rest = this.restAngle;
+    if (rest == null) { this.restAngle = angle; return false; }
+    if (!this.dip) {
+      if (rest - angle >= c.dipStartThreshold) this.dip = { start: time, lowest: angle };
+      else if (angle >= rest) this.restAngle = angle;
+      else this.restAngle = rest + (angle - rest) * c.restFollowRate;
+      return false;
+    }
+    if (time - this.dip.start > c.pageTurnWindow) { this.dip = null; this.restAngle = angle; return false; }
+    const lowest = Math.min(this.dip.lowest, angle);
+    this.dip.lowest = lowest;
+    if (rest - lowest >= c.pageTurnDepth && rest - angle <= c.returnTolerance) { this.dip = null; return true; }
+    return false;
+  }
+}
+
+// ---- Demo app ----
+const ANSWERS = [
+  ["Start now.", "现在就开始"], ["Sleep on it first.", "先睡一觉再决定"], ["You already know the answer.", "答案你心里早就有了"],
+  ["It's worth a try.", "值得一试"], ["Don't force it.", "别勉强自己"], ["Look at it from another angle.", "换个角度看看"],
+  ["It will go better than you think.", "会比你想的顺利"], ["Go for it.", "放手去做"], ["Not today. Try tomorrow.", "今天不是好日子，明天再说"],
+  ["Follow your gut.", "跟着直觉走"], ["Keep it simple.", "简单一点"], ["Slow down. It's faster that way.", "慢慢来，比较快"],
+  ["Write it down.", "把它写下来"], ["Go for a walk.", "去外面走走"], ["Be honest.", "坦诚一点"], ["Eat first.", "先吃饭"],
+  ["Trust the process.", "相信过程"], ["Ask a different question.", "换一个问题问"], ["Try a small step.", "小步试一下"],
+  ["Someone is waiting to hear from you.", "有人在等你的消息"]
+];
+
+const STRINGS = {
+  zh: {
+    demo: "在线演示", lede: "折一折虚拟的 iPhone Duo。HingeKit 会把铰链角度变成 <code>opened</code>（打开）、<code>closed</code>（合上）和 <code>pageTurn</code>（翻页）事件。这个页面跑的是和 Swift 包相同的算法，只是换成了 JavaScript。",
+    device: "设备", prompt: "心里想一个问题，<br>翻开书看答案。", bookTitle: "答案书", coverHint: "翻开我",
+    hinge: "铰链", close: "合上", book: "书本 (120°)", flick: "轻折一下", flat: "摊平",
+    tip: "左右拖动手机，或者拖滑块。在一秒内往回折至少 25° 再打开，就会翻一页；慢慢折不算。",
+    whatSees: "HingeKit 看到的", posture: "姿态", rest: "静止角度", lgAngle: "角度", lgRest: "静止角度", lgDepth: "翻页深度（−25°）",
+    source: "GitHub 源码", how: "翻页手势的原理", tm: "与 Apple 无关。iPhone 是 Apple Inc. 的商标。", page: n => `第 ${n} 页`, lang: "English"
+  },
+  en: { page: n => `Page ${n}`, lang: "中文" }
+};
+let lang = (navigator.language || "").startsWith("zh") ? "zh" : "en";
+const defaults = {};
+document.querySelectorAll("[data-i18n]").forEach(el => { defaults[el.dataset.i18n] = el.innerHTML; });
+
+function applyLang() {
+  document.documentElement.lang = lang === "zh" ? "zh-Hans" : "en";
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.dataset.i18n;
+    el.innerHTML = lang === "zh" && STRINGS.zh[key] ? STRINGS.zh[key] : defaults[key];
+  });
+  document.getElementById("lang").textContent = STRINGS[lang].lang;
+  renderPage(false);
+}
+
+const $ = id => document.getElementById(id);
+const slider = $("hinge"), device = $("device"), stage = $("stage");
+const recognizer = new FoldGestureRecognizer();
+const history = [];
+const marks = [];
+const t0 = performance.now();
+const now = () => (performance.now() - t0) / 1000;
+
+let angle = 0;
+let bag = [], page = null, flickTimer = null;
+
+function draw() {
+  let i;
+  do {
+    if (bag.length === 0) {
+      bag = [...ANSWERS.keys()];
+      for (let j = bag.length - 1; j > 0; j--) { const k = Math.floor(Math.random() * (j + 1)); [bag[j], bag[k]] = [bag[k], bag[j]]; }
+    }
+    i = bag.pop();
+  } while (page && i === page.index && ANSWERS.length > 1);
+  page = { index: i, number: i * 3 + 7 };
+}
+
+function renderPage(animate) {
+  const answer = $("answer");
+  if (!page) { answer.textContent = ""; $("pageNo").textContent = ""; return; }
+  answer.textContent = ANSWERS[page.index][lang === "zh" ? 1 : 0];
+  $("pageNo").textContent = STRINGS[lang].page(page.number);
+  if (animate) { answer.classList.remove("turning"); void answer.offsetWidth; answer.classList.add("turning"); }
+}
+
+function setAngle(value, fromSlider) {
+  angle = Math.round(Math.min(Math.max(value, 0), 180));
+  if (!fromSlider) slider.value = angle;
+  $("angleOut").textContent = angle + "°";
+  const w = device.offsetWidth / 2;
+  device.style.setProperty("--fold", `${-(180 - angle)}deg`);
+  device.classList.toggle("shut", angle < 3);
+  device.style.setProperty("--shift", `${((180 - angle) / 180) * w / 2}px`);
+  feed();
+}
+
+function feed() {
+  const t = now();
+  const events = recognizer.process(makeSample(angle, t));
+  history.push({ t, angle, rest: recognizer.restAngle });
+  for (const e of events) handle(e, t);
+  $("postureOut").textContent = recognizer.posture;
+  $("restOut").textContent = recognizer.restAngle == null ? "–" : Math.round(recognizer.restAngle) + "°";
+  $("btnFlick").disabled = angle < 45;
+}
+
+function handle(e, t) {
+  if (e.type === "opened") { draw(); renderPage(true); }
+  if (e.type === "pageTurn") { draw(); renderPage(true); marks.push(t); if (marks.length > 20) marks.shift(); }
+  flashLine(e.type);
+  const li = document.createElement("li");
+  li.className = e.type;
+  li.innerHTML = `<span>.${e.type}${e.type === "postureChanged" ? `(${e.from} → ${e.to})` : ""}</span><span>${t.toFixed(2)}s</span>`;
+  const log = $("log");
+  log.prepend(li);
+  while (log.children.length > 7) log.lastChild.remove();
+}
+
+function flashLine(type) {
+  const line = document.querySelector(`pre .ln[data-ev="${type}"]`);
+  if (!line) return;
+  line.classList.add("hit");
+  requestAnimationFrame(() => requestAnimationFrame(() => line.classList.remove("hit")));
+}
+
+// Controls
+slider.addEventListener("input", () => { cancelFlick(); setAngle(+slider.value, true); });
+$("btnClose").onclick = () => { cancelFlick(); setAngle(0); };
+$("btnBook").onclick = () => { cancelFlick(); setAngle(120); };
+$("btnFlat").onclick = () => { cancelFlick(); setAngle(180); };
+$("btnFlick").onclick = () => {
+  cancelFlick();
+  const rest = angle;
+  const path = [rest - 15, rest - 35, rest - 20, rest - 5, rest];
+  let step = 0;
+  flickTimer = setInterval(() => {
+    setAngle(Math.max(path[step], 10));
+    if (++step === path.length) cancelFlick();
+  }, 60);
+};
+function cancelFlick() { if (flickTimer) { clearInterval(flickTimer); flickTimer = null; } }
+$("lang").onclick = () => { lang = lang === "zh" ? "en" : "zh"; applyLang(); };
+
+// Drag the phone: right opens, left closes.
+let drag = null;
+stage.addEventListener("pointerdown", e => { cancelFlick(); drag = { x: e.clientX, start: angle }; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener("pointermove", e => {
+  if (!drag) return;
+  const span = device.offsetWidth / 2;
+  setAngle(drag.start + (e.clientX - drag.x) / span * 180);
+});
+const endDrag = () => { drag = null; };
+stage.addEventListener("pointerup", endDrag);
+stage.addEventListener("pointercancel", endDrag);
+
+// Chart of the last five seconds
+const canvas = $("chart"), ctx = canvas.getContext("2d");
+const WINDOW = 5;
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function render() {
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== w * dpr || canvas.height !== h * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  const t = now(), pad = 8;
+  const x = time => w - ((t - time) / WINDOW) * w;
+  const y = a => pad + (1 - a / 180) * (h - pad * 2);
+  while (history.length > 2 && history[1].t < t - WINDOW - 1) history.shift();
+  // Grid at 0, 90, 180
+  ctx.strokeStyle = css("--line"); ctx.lineWidth = 1; ctx.setLineDash([]);
+  for (const a of [0, 90, 180]) { ctx.beginPath(); ctx.moveTo(0, y(a)); ctx.lineTo(w, y(a)); ctx.stroke(); }
+  ctx.fillStyle = css("--muted"); ctx.font = "11px ui-monospace, Menlo, monospace";
+  ctx.fillText("180°", 4, y(180) + 12); ctx.fillText("0°", 4, y(0) - 4);
+  // Step lines: each value holds until the next sample.
+  const series = (key, color, dash, offset = 0) => {
+    ctx.strokeStyle = color; ctx.setLineDash(dash); ctx.lineWidth = key === "angle" ? 2.5 : 1.5;
+    ctx.beginPath();
+    let started = false;
+    history.forEach((p, i) => {
+      const v = p[key];
+      if (v == null) { started = false; return; }
+      const next = history[i + 1] ? history[i + 1].t : t;
+      if (!started) { ctx.moveTo(x(p.t), y(v - offset)); started = true; } else ctx.lineTo(x(p.t), y(v - offset));
+      ctx.lineTo(x(next), y(v - offset));
+    });
+    ctx.stroke();
+  };
+  series("rest", css("--warn"), [2, 4], recognizer.config.pageTurnDepth);
+  series("rest", css("--rest"), [6, 5]);
+  series("angle", css("--accent"), []);
+  ctx.setLineDash([]);
+  ctx.fillStyle = css("--accent");
+  for (const m of marks) {
+    if (m < t - WINDOW) continue;
+    ctx.beginPath(); ctx.arc(x(m), pad + 6, 5, 0, Math.PI * 2); ctx.fill();
+  }
+  requestAnimationFrame(render);
+}
+
+applyLang();
+setAngle(0);
+requestAnimationFrame(render);
+</script>
+</body>
+</html>
