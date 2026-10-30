@@ -22,14 +22,14 @@ iOS 27.1 gives you the raw hinge (`onHingeChange`, with a status and an angle). 
 
 - **Fold gestures.** `opened`, `closed` and `pageTurn` (a quick partial fold and back), with thresholds you can tune.
 - **Postures with hysteresis.** `closed`, `halfOpen`, `flat` and `noHinge`, without flicker when the hinge rests near a threshold.
-- **Hinge simulator panel.** `.hingeSimulator()` fakes the hinge with a slider and Close / Flick / Flat buttons, in Xcode Previews, in any simulator and on any phone. The iOS 27.1 Simulator has no hinge control, so this is the easiest way to test fold logic today.
+- **Hinge simulator panel.** `.hingeSimulator()` fakes the hinge with a slider and Close / Flick / Flat buttons, in Xcode Previews, in any simulator and on any phone. The iPhone Duo simulator has hinge buttons of its own, but the panel also works in Previews and on devices without a hinge, and its Flick button replays a quick page-turn fold with exact timing, which is hard to do by hand.
 - **Works everywhere.** On phones and iPads without a hinge, the posture is `.noHinge` and no events fire, so one code path covers every device.
 - **Pure, tested core.** `FoldGestureRecognizer` and `PostureClassifier` are value types with no timers or system calls. Feed them samples, get events back.
 
 ## Requirements
 
 - Xcode 27.1 or later (Swift 6.4) to read the real hinge. The package declares iOS 17 so the same code runs on older devices, where the hinge is simply absent.
-- The iPhone Duo simulator needs the iOS 27.1 simulator runtime (Xcode → Settings → Components).
+- The iPhone Duo simulator needs the iOS 27.1 simulator runtime (Xcode → Settings → Components). Its Device Hub has Closed, Partially Open and Open buttons, and holding Option shows a slider for any fold angle.
 
 ## Installation
 
