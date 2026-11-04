@@ -30,7 +30,11 @@ BookView()
     }
 ```
 
-<!-- demo gif -->
+<p align="center">
+  <a href="https://midjug3nine.github.io/HingeKit/"><img src="docs/images/demo.gif" alt="HingeKit live demo: open the phone, flick it twice to turn two pages, then close it" width="720"></a>
+  <br>
+  <sub>Recorded from the <a href="https://midjug3nine.github.io/HingeKit/">live demo</a>, which runs the same algorithm in the browser.</sub>
+</p>
 
 ## Why HingeKit
 

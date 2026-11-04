@@ -30,7 +30,11 @@ BookView()
     }
 ```
 
-<!-- demo gif -->
+<p align="center">
+  <a href="https://midjug3nine.github.io/HingeKit/"><img src="docs/images/demo.gif" alt="HingeKit 在线演示：打开手机，快速半合两次翻两页，再合上" width="720"></a>
+  <br>
+  <sub>录自<a href="https://midjug3nine.github.io/HingeKit/">在线演示</a>，浏览器里跑的是同一套算法。</sub>
+</p>
 
 ## 为什么用 HingeKit
 
